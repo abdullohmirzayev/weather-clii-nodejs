@@ -4,12 +4,16 @@
   "description": "weather-cli project",
   "main": "index.js",
   "scripts": {
-    "test": "Error"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [
     "nodejs",
     "js"
   ],
   "author": "Abdulloh Mirzayev",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
 }
