@@ -1,11 +1,16 @@
 import getArgs from "./helpers/args.js";
-import { saveKeyValue, TOKEN__DICTIONARY } from "./services/srorage.service.js";
+import {
+  getKeyValue,
+  saveKeyValue,
+  TOKEN__DICTIONARY,
+} from "./services/srorage.service.js";
 import {
   printError,
   printSuccess,
   printHelp,
+  printWeather,
 } from "./services/log.services.js";
-import { getWeather } from "./services/api.service.js";
+import { getIcon, getWeather } from "./services/api.service.js";
 
 const saveToken = async (token) => {
   if (!token.length) {
@@ -19,10 +24,24 @@ const saveToken = async (token) => {
   }
 };
 
+const saveCity = async (city) => {
+  if (!city.length) {
+    printError("City doesn't exist");
+  }
+  try {
+    await saveKeyValue(TOKEN__DICTIONARY.city, city);
+    printSuccess("City was saved");
+  } catch (error) {
+    printError(error.message);
+  }
+};
+
 const getForcast = async () => {
   try {
-    const response = await getWeather(process.env.CITY ?? "Uzbekistan");
-    console.log(response);
+    const city =
+      process.env.CITY ?? (await getKeyValue(TOKEN__DICTIONARY.city));
+    const response = await getWeather(city);
+    printWeather(response, getIcon(response.weather[0].icon));
   } catch (error) {
     if (error?.response?.status == 404) {
       printError("City not found");
@@ -37,14 +56,14 @@ const getForcast = async () => {
 const startCLI = () => {
   const args = getArgs(process.argv);
   if (args.h) {
-    printHelp();
+    return printHelp();
   }
   if (args.s) {
-    // save city
+    return saveCity(args.s);
   }
   if (args.t) {
     return saveToken(args.t);
   }
-  getForcast();
+  return getForcast();
 };
 startCLI();
